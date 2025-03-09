@@ -1,0 +1,26 @@
+#docker container for FSL Feat pipeline for RECOVER
+#This script runs the FEAT stats (1st level GLM model) for functional scans
+#code created for RECOVER project by K. Nguyen at A. Wu Feb 2025
+
+FROM neurodebian:latest  # Or use an FSL-based image if preferred
+
+# Install FSL
+RUN apt-get update && apt-get install -y fsl python3 python3-pip
+
+# Set environment variables for FSL
+ENV FSLDIR=/usr/share/fsl
+ENV PATH=$FSLDIR/bin:$PATH
+ENV FSLOUTPUTTYPE=NIFTI_GZ
+
+# Install Python dependencies
+RUN pip3 install nilearn nipype matplotlib pandas numpy argparse logging
+
+# Copy scripts into the container
+COPY feat_contrasts_recover_cluster.sh /usr/local/bin/
+COPY visualize_img_FSL.py /usr/local/bin/
+
+# Give execution permissions
+RUN chmod +x /usr/local/bin/feat_contrasts_recover_cluster.sh /usr/local/bin/visualize_img_FSL.py
+
+# Run first-level GLM and post-stats scripts
+ENTRYPOINT ["/bin/bash", "-c", "/usr/local/bin/feat_contrasts_recover_cluster.sh $@ && python3 /usr/local/bin/visualize_img_FSL.py $@"]
