@@ -8,8 +8,8 @@ Adapted from MGH protocol and used for detecting consciousness of coma patients
 4) ROIs for Motor and Language Tasks.
 
 # Run master_workflow.sh calling all the steps of the pipeline.
-master_workflow.sh: Orchestrates the RECOVER fMRI pipeline including FEAT stats,
-- accepts subject IDs as command-line arguments with options to run specific steps or all.
+master_workflow.sh: Orchestrates the RECOVER fMRI pipeline
+Accepts subject IDs as command-line arguments with options to run specific steps or all.
 Options: -f (FEAT stats), -c (calculate post-stats), -o (generate output pdf+html), -a (all steps)
 1. feat_contrasts_recover_cluster.sh
 - run FSL FEAT analysis with specified designed matrix and configurations
