@@ -1,7 +1,7 @@
 # Task-based_fMRI_pipeline created for RECOVER project by K. Nguyen and Q. Wu, Mar 2025
 Adapted from MGH protocol and used for detecting consciousness of coma patients
 
-# Input are selected from fmriprep output including 
+# Inputs are selected from fmriprep output, including 
 1) Functional BOLD images (nifti) from tasks (two motor tasks and one language task), 
 2) Structural T1w images in native and standard MNI space, brain masks of skull-stripped T1, and trasnformation matrix in h5 files, 
 3) Design matrix setting up for FSl FEAT analysis,
