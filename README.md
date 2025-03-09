@@ -18,6 +18,7 @@ Options: -f (FEAT stats), -c (calculate post-stats), -o (generate output pdf+htm
 2. output_generator.py
 - calls data_processor.py and uses html_template.py
 - process and combine results and plots. Generate html with visualization, easier for physicians to diagnose and report results
+
 usage() {
     echo "Usage: $0 [-f] [-c] [-o] [-a] <subject_id1> <subject_id2> ... <subject_idN>"
     echo "Options:"
