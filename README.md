@@ -18,12 +18,6 @@ Options: -f (FEAT stats), -c (calculate post-stats), -o (generate output pdf+htm
 2. output_generator.py
 - calls data_processor.py and uses html_template.py
 - process and combine results and plots. Generate html with visualization, easier for physicians to diagnose and report results
-
-# Outputs include 
-1) Table showing the number and percentage of suprathresholded voxels in ROIs and Whole Brain,
-2) Thresholded Z-maps in native space obtained from FSL FEAT analysis, 
-3) HTML viewer (+pdf) for physicians including table and plots obtained above and interactive brain viewer. 
-
 usage() {
     echo "Usage: $0 [-f] [-c] [-o] [-a] <subject_id1> <subject_id2> ... <subject_idN>"
     echo "Options:"
@@ -33,3 +27,9 @@ usage() {
     echo "  -a    Run all steps (default if no options specified)"
     exit 1
 }
+# Outputs include 
+1) Table showing the number and percentage of suprathresholded voxels in ROIs and Whole Brain,
+2) Thresholded Z-maps in native space obtained from FSL FEAT analysis, 
+3) HTML viewer (+pdf) for physicians including table and plots obtained above and interactive brain viewer. 
+
+
