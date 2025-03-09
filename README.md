@@ -1,4 +1,4 @@
-# Task-based_fMRI_pipeline created for RECOVER project by K. Nguyen and Q. Wu, Mar 2025
+# Task-based_fMRI_pipeline created for RECOVER project by K. Nguyen and A. Wu, Mar 2025
 Adapted from MGH protocol and used for detecting consciousness of coma patients
 
 # Inputs are selected from fmriprep output, including 
