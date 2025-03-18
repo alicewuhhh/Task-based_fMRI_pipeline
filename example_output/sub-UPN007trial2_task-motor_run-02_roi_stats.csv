@@ -1,0 +1,19 @@
+Subject,Task,Space,ROI,Threshold,Stat Type,Activated Voxels across Whole Brain (counts),Activated Voxels within ROI (counts),Activated Voxels across Whole Brain (%),Activated Voxels within ROI (%),Activated ROI/WB (%),%Activated ROI/%Activated WB (ratio),Voxels in ROI (counts),Voxels in Whole Brain (counts)
+UPN007trial2,motor_run-02,Native,Whole-brain,Z=3.1,Z-stat,241909,36195,8.400,34.400,1.200,4.09,105054,2876162
+UPN007trial2,motor_run-02,Native,Left,Z=3.1,Z-stat,120404,18635,8.200,35.600,1.200,4.34,52251,1453052
+UPN007trial2,motor_run-02,Native,Right,Z=3.1,Z-stat,126134,18504,8.300,33.100,1.200,3.98,55885,1507455
+UPN007trial2,motor_run-02,Native,Whole-brain,Z=2.35,Z-stat,593500,44574,20.600,42.400,1.500,2.05,105054,2876162
+UPN007trial2,motor_run-02,Native,Left,Z=2.35,Z-stat,313333,22837,21.500,43.700,1.500,2.03,52251,1453052
+UPN007trial2,motor_run-02,Native,Right,Z=2.35,Z-stat,290207,22864,19.200,40.900,1.500,2.13,55885,1507455
+UPN007trial2,motor_run-02,Native,Whole-brain,p<0.05,TFCE,894,433,0.800,0.400,0.400,0.50,105054,107840
+UPN007trial2,motor_run-02,Native,Left,p<0.05,TFCE,816,417,1.300,0.700,0.600,0.53,52251,60260
+UPN007trial2,motor_run-02,Native,Right,p<0.05,TFCE,80,16,0.100,0.000,0.000,0.00,55885,52691
+UPN007trial2,motor_run-02,MNI,Whole-brain,Z=3.1,Z-stat,19001,3489,4.600,21.400,0.800,4.65,16267,410072
+UPN007trial2,motor_run-02,MNI,Left,Z=3.1,Z-stat,9675,1963,4.700,23.800,0.900,5.06,8219,204303
+UPN007trial2,motor_run-02,MNI,Right,Z=3.1,Z-stat,9597,1634,4.500,19.100,0.700,4.24,8517,212058
+UPN007trial2,motor_run-02,MNI,Whole-brain,Z=2.35,Z-stat,43077,4494,10.500,27.600,1.000,2.62,16267,410072
+UPN007trial2,motor_run-02,MNI,Left,Z=2.35,Z-stat,22583,2490,11.000,30.200,1.200,2.74,8219,204303
+UPN007trial2,motor_run-02,MNI,Right,Z=2.35,Z-stat,21115,2141,9.900,25.100,1.000,2.53,8517,212058
+UPN007trial2,motor_run-02,MNI,Whole-brain,p<0.05,TFCE,68,26,0.900,0.100,0.300,0.11,16267,7470
+UPN007trial2,motor_run-02,MNI,Left,p<0.05,TFCE,63,26,1.400,0.300,0.600,0.21,8219,4333
+UPN007trial2,motor_run-02,MNI,Right,p<0.05,TFCE,6,0,0.100,0.000,0.000,0.00,8517,3369

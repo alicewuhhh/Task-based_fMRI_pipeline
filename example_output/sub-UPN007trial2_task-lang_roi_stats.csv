@@ -1,0 +1,19 @@
+Subject,Task,Space,ROI,Threshold,Stat Type,Activated Voxels across Whole Brain (counts),Activated Voxels within ROI (counts),Activated Voxels across Whole Brain (%),Activated Voxels within ROI (%),Activated ROI/WB (%),%Activated ROI/%Activated WB (ratio),Voxels in ROI (counts),Voxels in Whole Brain (counts)
+UPN007trial2,lang,Native,Whole-brain,Z=3.1,Z-stat,128487,33724,4.400,51.000,1.100,11.59,66094,2902597
+UPN007trial2,lang,Native,Left,Z=3.1,Z-stat,57857,18039,3.900,53.100,1.200,13.61,33953,1467179
+UPN007trial2,lang,Native,Right,Z=3.1,Z-stat,72748,15685,4.700,48.800,1.000,10.38,32141,1522800
+UPN007trial2,lang,Native,Whole-brain,Z=2.35,Z-stat,408528,38131,14.000,57.600,1.300,4.11,66094,2902597
+UPN007trial2,lang,Native,Left,Z=2.35,Z-stat,196740,20080,13.400,59.100,1.300,4.41,33953,1467179
+UPN007trial2,lang,Native,Right,Z=2.35,Z-stat,221686,18051,14.500,56.100,1.100,3.86,32141,1522800
+UPN007trial2,lang,Native,Whole-brain,p<0.05,TFCE,459,299,0.400,0.400,0.300,1.00,66094,98419
+UPN007trial2,lang,Native,Left,p<0.05,TFCE,245,256,0.400,0.700,0.500,1.75,33953,49913
+UPN007trial2,lang,Native,Right,p<0.05,TFCE,214,43,0.300,0.100,0.000,0.33,32141,54935
+UPN007trial2,lang,MNI,Whole-brain,Z=3.1,Z-stat,9983,3851,2.400,35.700,0.900,14.87,10761,414946
+UPN007trial2,lang,MNI,Left,Z=3.1,Z-stat,4545,1978,2.100,37.200,0.900,17.71,5304,206678
+UPN007trial2,lang,MNI,Right,Z=3.1,Z-stat,5541,1873,2.500,34.300,0.800,13.72,5457,214755
+UPN007trial2,lang,MNI,Whole-brain,Z=2.35,Z-stat,26737,4619,6.400,42.900,1.100,6.70,10761,414946
+UPN007trial2,lang,MNI,Left,Z=2.35,Z-stat,12630,2327,6.100,43.800,1.100,7.18,5304,206678
+UPN007trial2,lang,MNI,Right,Z=2.35,Z-stat,14635,2292,6.800,42.000,1.000,6.17,5457,214755
+UPN007trial2,lang,MNI,Whole-brain,p<0.05,TFCE,24,16,0.300,0.100,0.200,0.33,10761,7019
+UPN007trial2,lang,MNI,Left,p<0.05,TFCE,15,15,0.400,0.200,0.400,0.50,5304,3491
+UPN007trial2,lang,MNI,Right,p<0.05,TFCE,9,1,0.200,0.000,0.000,0.00,5457,3806
