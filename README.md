@@ -1,5 +1,5 @@
 # Task-based_fMRI_pipeline created for RECOVER project by K. Nguyen and A. Wu, Mar 2025
-Adapted from MGH protocol and used for detecting consciousness of coma patients
+Introduced two testing methods: 1) permutation testing with threshold-free clustering enhancement method; 2) GLM testing adapted from MGH protocol. The goal is to explore new methods to improve exisiting methods in diagnosing/detecting consciousness of coma patients
 
 # Inputs are selected from fmriprep output, including 
 1) Functional BOLD images (nifti) from tasks (two motor tasks and one language task), 
