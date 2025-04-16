@@ -3,7 +3,7 @@
 # cal_post_stats_thresh.sh, output_generator.py, and randomise permutation testing.
 # Accepts subject IDs as command-line arguments with options to run specific steps or all.
 # Options: -f (FEAT stats), -p (randomise permutation testing), -c (calculate post-stats), 
-#          -o (generate output pdf+html), -a (all steps)
+#          -o (generate output pdf+html), -a (all steps), -t (specify tasks)
 # Created for RECOVER project by K. Nguyen and A. Wu, Mar 2025
 
 # Exit on any error
@@ -30,7 +30,7 @@ usage() {
 }
 
 # Parse options
-while getopts "fpco" opt; do
+while getopts "fpcot:" opt; do
     case $opt in
         f) RUN_FEAT=1 ;;
         p) RUN_RANDOMISE=1 ;;
@@ -59,23 +59,15 @@ if [ $RUN_FEAT -eq 0 ] && [ $RUN_CALC -eq 0 ] && [ $RUN_OUTPUT -eq 0 ] && [ $RUN
     RUN_OUTPUT=1
 fi
 
-# Set ANTs path
-export PATH="/Users/aliceqichaowu/ANTs/bin:$PATH"
-if ! command -v antsApplyTransforms &> /dev/null; then
-    echo "Error: antsApplyTransforms not found. Please verify ANTs installation at /Users/aliceqichaowu/ANTs/bin or adjust PATH."
-    exit 1
-fi
-
 # Base directories (aligned with cal_post_stats_thresh.sh and output_generator.py)
-ARCHIVEDIR=/Volumes/WILL_STUFF/RECOVER/fsl_pipeline
+ARCHIVEDIR=/project/fischer/PREDICT/alicewu/fsl_pipeline
 ROI=${ARCHIVEDIR}/ROI
 export ARCHIVEDIR
 export ROI
 SCRIPTSDIR=${ARCHIVEDIR}/code/scripts/docker_cluster
 FEAT_STATS=${SCRIPTSDIR}/feat_contrasts_recover_cluster.sh
-RANDOMISE_STATS=${SCRIPTSDIR}/run_permutation_test.sh
+RANDOMISE_STATS=${SCRIPTSDIR}/run_permutation_test_cluster.sh
 CAL_POST_STATS=${SCRIPTSDIR}/calc_post_stats_thresh.sh
-PYTHON=/opt/anaconda3/bin/python3
 OUTPUT_GENERATOR=${SCRIPTSDIR}/output_generator.py
 TEMPLATE=${ARCHIVEDIR}/code/templates/design_test_script.fsf
 
@@ -86,10 +78,6 @@ for cmd in feat fslmaths randomise antsApplyTransforms; do
         exit 1
     fi
 done
-if [ ! -f "$PYTHON" ]; then
-    echo "Error: Python3 not found at $PYTHON. Please ensure Python 3.8.20 is installed at /opt/anaconda3/bin."
-    exit 1
-fi
 if [ ! -f "$TEMPLATE" ]; then
     echo "Error: FEAT template file not found at $TEMPLATE."
     exit 1
@@ -97,7 +85,7 @@ fi
 
 # Function to run feat_contrasts_recover_cluster.sh
 run_feat_stats() {
-    echo "Running feat_contrasts_recover_cluster.sh to generate initial FEAT stats for subjects: $@..."
+    echo "Running feat_contrasts_recover_cluster.sh to generate initial FEAT stats for subjects: $@ with tasks: $TASKS..."
     export TASKS  # Pass tasks to feat_contrasts_recover_cluster.sh
     bash "$FEAT_STATS" "$@"
     if [ $? -ne 0 ]; then
@@ -107,21 +95,21 @@ run_feat_stats() {
     echo "feat_contrasts_recover_cluster.sh completed successfully."
 }
 
-# Function to run run_permutation_test.sh
-run_permutation_test() {
-    echo "Running run_permutation_test.sh for subjects: $@..."
+# Function to run run_permutation_test_cluster.sh
+run_permutation_test_cluster() {
+    echo "Running run_permutation_test_cluster.sh for subjects: $@ with tasks: $TASKS..."
     export TASKS
     bash "$RANDOMISE_STATS" "$@"
     if [ $? -ne 0 ]; then
-        echo "Error: run_permutation_test.sh failed. Check logs for details."
+        echo "Error: run_permutation_test_cluster.sh failed. Check logs for details."
         exit 1
     fi
-    echo "run_permutation_test.sh jobs submitted successfully. Monitor with 'bjobs'."
+    echo "run_permutation_test_cluster.sh jobs submitted successfully. Monitor with 'bjobs'."
 }
 
 # Function to run cal_post_stats_thresh.sh
 run_cal_post_stats() {
-    echo "Running cal_post_stats_thresh.sh to process z-maps and generate CSV files for subjects: $@..."
+    echo "Running cal_post_stats_thresh.sh to process z-maps and generate CSV files for subjects: $@ with tasks: $TASKS..."
     export TASKS
     bash "$CAL_POST_STATS" "$@"
     if [ $? -ne 0 ]; then
@@ -133,7 +121,7 @@ run_cal_post_stats() {
 
 # Function to run output_generator.py
 run_output_generator() {
-    echo "Running output_generator.py to generate PDF and HTML reports for subjects: $@..."
+    echo "Running output_generator.py to generate PDF and HTML reports for subjects: $@ with tasks: $TASKS..."
     export TASKS
     "$PYTHON" "$OUTPUT_GENERATOR" "$@"
     if [ $? -ne 0 ]; then
@@ -144,7 +132,7 @@ run_output_generator() {
 }
 
 # Main execution
-echo "Starting RECOVER fMRI pipeline workflow on $(date) for subjects: $@"
+echo "Starting RECOVER fMRI pipeline workflow on $(date) for subjects: $@ with tasks: $TASKS"
 
 # Execute selected steps
 if [ $RUN_FEAT -eq 1 ]; then
@@ -152,7 +140,7 @@ if [ $RUN_FEAT -eq 1 ]; then
 fi
 
 if [ $RUN_RANDOMISE -eq 1 ]; then
-    run_permutation_test "$@"
+    run_permutation_test_cluster "$@"
 fi
 
 if [ $RUN_CALC -eq 1 ]; then
