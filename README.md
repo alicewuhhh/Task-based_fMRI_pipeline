@@ -12,7 +12,7 @@ This pipeline implements two testing methods:
 
 The pipeline uses outputs from fMRIPrep (version: 23.0.1).  
 **fMRIPrep command used:**
-/opt/conda/bin/fmriprep /flywheel/v0/work/bids /flywheel/v0/output/67b747ac81e8158d3b6ad2c6 participant --aroma-melodic-dimensionality=-200 --bold2t1w-dof=6 --bold2t1w-init=re
+`/opt/conda/bin/fmriprep /flywheel/v0/work/bids /flywheel/v0/output/67b747ac81e8158d3b6ad2c6 participant --aroma-melodic-dimensionality=-200 --bold2t1w-dof=6 --bold2t1w-init=register --dvars-spike-threshold=1.5 --fd-spike-threshold=0.5 --n_cpus=2 --omp-nthreads=2 --output-spaces=MNI152NLin6Asym --skull-strip-t1w=force --skull-strip-template=OASIS30ANTs --use-aroma --mem=12203`
 
 **Required inputs:**
 - **Functional BOLD images (NIfTI):** In the 'func' folder of fMRIPrep output. in standard MNI space.
