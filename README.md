@@ -18,7 +18,7 @@ The pipeline uses outputs from fMRIPrep (version: 23.0.1).
 - **Functional BOLD images (NIfTI):** In the 'func' folder of fMRIPrep output. in standard MNI space.
   - From tasks (two motor tasks and one language task). e.g., `sub-xxx_ses-01_task-motor_run-01_space-MNI152NLin6Asym_desc-preproc_bold.nii.gz`
   - Brain masks for the functional bold images. `sub-xxx_ses-01_task-motor_run-01_space-MNI152NLin6Asym_desc-brain_mask.nii.gz`
-- **Structural T1w images:** In the 'func' folder of fMRIPrep output.
+- **Structural T1w images:** In the 'anat' folder of fMRIPrep output.
   - T1w image in native and MNI space. `sub-xxx_ses-01_run-01_desc-brain_T1w.nii.gz`, `sub-xxx_ses-01_run-01_space-MNI152NLin6Asym_desc-preproc_T1w.nii.gz`.
   - Brain masks of skull-stripped T1. `sub-xxx_ses-01_run-01_desc-brain_mask.nii.gz`
   - Transformation matrix file. `sub_xxx_ses-01_run-01_from-MNI152NLin6Asym_to-T1w_mode-image_xfm.h5`
@@ -35,13 +35,13 @@ This script orchestrates the RECOVER fMRI pipeline and accepts subject IDs as co
 **Options:**
 - `-f`: Run FEAT stats (`feat_contrasts_recover_cluster.sh`).
 - `-p`: Run randomize permutation testing (`run_permutation_test_cluster.sh`).
-- `-i`: Run ICA analysis (`ica_corr.py`)
 - `-c`: Calculate post-stats (`cal_post_stats_thresh.sh`).
+- `-i`: Run ICA analysis (`ica_corr.py`)
 - `-o`: Generate output (PDF + HTML) (`output_generator.py`).
 - `-a`: Run all steps (default if no specific option is specified).
 
 **Usage example:**
-./master_workflow.sh [-f] [-p] [-c] [-o] [-a] <subject_id1> <subject_id2> ... <subject_idN>
+./master_workflow.sh [-f] [-p] [-c] [-i] [-o] [-a] <subject_id1> <subject_id2> ... <subject_idN>
 
 ---
 
