@@ -16,14 +16,14 @@ master_workflow.sh: Orchestrates the RECOVER fMRI pipeline and accepts subject I
  Options: -f (FEAT stats), -p (randomise permutation testing), -c (calculate post-stats), -o (generate output pdf+html), -a (all steps)
 
 __1. feat_contrasts_recover_cluster.sh__
-- runs FSL FEAT analysis (GLM test) with specified designed matrix and configurations
+- runs FSL FEAT analysis (GLM test) with specified designed matrix and configurations <br>
 __2. run_permutation_test_cluster.sh__
-- runs randomise permutation testing with time series data
+- runs randomise permutation testing with time series data <br>
 __3. cal_post_stats_thresh.sh__
-- calculates quantitative measurements based on the output of previous step
+- calculates quantitative measurements based on the output of previous step<br>
 __4. output_generator.py__
 - calls __data_processor.py__ and uses __html_template.py__
-- process and combine results and plots. Generate html with visualization, easier for physicians to diagnose and report results
+- process and combine results and plots. Generate html with visualization, easier for physicians to diagnose and report results<br>
 
 usage() {
     echo "Usage: $0 [-f] [-p] [-c] [-o] [-a] <subject_id1> <subject_id2> ... <subject_idN>"
