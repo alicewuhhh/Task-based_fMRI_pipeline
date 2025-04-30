@@ -3,8 +3,8 @@
 Created by K. Nguyen and A. Wu, Mar 2025.
 
 This pipeline implements two testing methods:
-- **GLM Testing:** Adapted from the MGH protocol. The goal is to explore new methods to improve existing methods in diagnosing/detecting consciousness in coma patients.
-- **Permutation Testing:** Includes a threshold-free clustering enhancement method.
+- **GLM Testing:** Adapted from the MGH protocol. Use GLM model to conduct the analysis. Cluster thresholding at Z=3.1
+- **Permutation Testing:** Non-parametric method. Randomly shuffling or rearranging data to estimate the sampling distribution of a test statistic under the null hypothesis. Includes a threshold-free clustering enhancement (TFCE) method.
 
 ---
 
