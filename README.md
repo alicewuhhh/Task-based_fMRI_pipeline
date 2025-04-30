@@ -69,6 +69,7 @@ This script orchestrates the RECOVER fMRI pipeline and accepts subject IDs as co
 ## Outputs
 
 For both FEAT GLM tests and Randomize Permutation tests:
+- **Excel sheets** Save all the calculation results from cal_post_stats_thresh.sh
 - **Tables:** Show the number and percentage of suprathresholded voxels in ROIs and the whole brain.
 - **Thresholded Z-maps:** In native space, obtained from FSL FEAT analysis.
 - **HTML Viewer (+ PDF):** Includes:
