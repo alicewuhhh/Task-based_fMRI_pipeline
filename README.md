@@ -23,7 +23,7 @@ The pipeline uses outputs from fMRIPrep (version: 23.0.1).
   - Brain masks of skull-stripped T1. `sub-xxx_ses-01_run-01_desc-brain_mask.nii.gz`
   - Transformation matrix file. `sub_xxx_ses-01_run-01_from-MNI152NLin6Asym_to-T1w_mode-image_xfm.h5`
 - **Design template:** For FSL FEAT analysis (`design_test_script.fsf`).
-- **ROIs:** Motor (SMA + PMC) and Language tasks (STG, Heschl).
+- **ROIs:** Motor (`SMA_PMC.nii.gz`) and Language tasks (`STG.nii.gz`, `Heschl.nii.gz`).
 
 ---
 
