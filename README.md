@@ -5,24 +5,24 @@ Implemented two testing methods: 1) GLM testing adapted from MGH protocol. The g
 # Inputs are selected from fmriprep output, including 
 fMRIPrep version: 23.0.1 <br>
 __fMRIPrep command__: /opt/conda/bin/fmriprep /flywheel/v0/work/bids /flywheel/v0/output/67b747ac81e8158d3b6ad2c6 participant --aroma-melodic-dimensionality=-200 --bold2t1w-dof=6 --bold2t1w-init=register --dvars-spike-threshold=1.5 --fd-spike-threshold=0.5 --n_cpus=2 --omp-nthreads=2 --output-spaces=MNI152NLin6Asym --skull-strip-t1w=force --skull-strip-template=OASIS30ANTs --use-aroma --mem=12203 <br>
-__Inputs__: <br>
+__Inputs__:
 1) Functional BOLD images (nifti) from tasks (two motor tasks and one language task), 
 2) Structural T1w images in native and standard MNI space, brain masks of skull-stripped T1, and trasnformation matrix in h5 files, 
-3) Design matrix setting up for FSl FEAT analysis,
-4) ROIs for Motor and Language Tasks.
+3) Design template for FSl FEAT analysis (design_test_script.fsf),
+4) ROIs for Motor (SMA+PMC) and Language Tasks (STG, Heschl).
 
 # Run master_workflow.sh calling all the steps of the pipeline 
 master_workflow.sh: Orchestrates the RECOVER fMRI pipeline and accepts subject IDs as command-line arguments with options to run specific steps or all.
  Options: -f (FEAT stats), -p (randomise permutation testing), -c (calculate post-stats), -o (generate output pdf+html), -a (all steps)
 
-1. feat_contrasts_recover_cluster.sh
+__1. feat_contrasts_recover_cluster.sh__
 - runs FSL FEAT analysis (GLM test) with specified designed matrix and configurations
-2. run_permutation_test_cluster.sh
+__2. run_permutation_test_cluster.sh__
 - runs randomise permutation testing with time series data
-3. cal_post_stats_thresh.sh
+__3. cal_post_stats_thresh.sh__
 - calculates quantitative measurements based on the output of previous step
-4. output_generator.py
-- calls data_processor.py and uses html_template.py
+__4. output_generator.py__
+- calls __data_processor.py__ and uses __html_template.py__
 - process and combine results and plots. Generate html with visualization, easier for physicians to diagnose and report results
 
 usage() {
