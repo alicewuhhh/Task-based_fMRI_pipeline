@@ -75,3 +75,4 @@ For both FEAT GLM tests and Randomize Permutation tests:
 - **HTML Viewer (+ PDF):** Includes:
   - Tables and plots mentioned above.
   - Interactive brain viewer for physicians to diagnose and report results.
+  - ICA results.
