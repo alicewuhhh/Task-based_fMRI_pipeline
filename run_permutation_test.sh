@@ -14,7 +14,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Number of permutations
-NUM_PERM=200
+NUM_PERM=1000
 
 process_subject_task() {
     subject=$1
