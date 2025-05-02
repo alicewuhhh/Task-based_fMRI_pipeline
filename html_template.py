@@ -1,12 +1,13 @@
 # html_template.py: Updated HTML template for output_generator.py
-# Updated to include separate Z-stat and TFCE tables, Oct 2025
-# Updated to add unthresholded viewers at the end of Native Space with iframes and links, Apr 2025
+# Updated to add unthresholded viewers with iframes and links, Apr 2025
+# Updated to make figures, tables, and viewers the same width, May 2025
+# Updated to fix Native Space Z=2.35 tab, remove Z=2.35 viewers, reduce viewer spacing, and left-align elements, May 2025
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{subject} Task-Based fMRI Report</title>
+    <title>{subject}: Task-Based fMRI Report</title>
     <style>
         .space-tab {{
             overflow: hidden;
@@ -57,13 +58,20 @@ HTML_TEMPLATE = """
             display: none;
             padding: 6px 12px;
         }}
-        img {{
-            max-width: 90%;
+        .report-element {{
+            width: 100%;
+            max-width: 1200px;
             height: auto;
+            display: block;
+            margin: 0; /* Left-align by removing auto margins */
+            text-align: left; /* Ensure text is left-aligned */
+        }}
+        img.report-element {{
+            /* Ensure images scale properly */
         }}
         .viewer {{
-            width: 100%;
-            height: 400px;
+            aspect-ratio: 4/3;
+            margin-bottom: 5px; /* Reduced from 20px for smaller spacing */
             border: none;
         }}
     </style>
@@ -83,56 +91,30 @@ HTML_TEMPLATE = """
         </div>
         <div id="Native_31" class="thresh-tabcontent">
             <h2>Z-Maps with ROI Outlines (Native Space, Z=3.1)</h2>
-            <img src="data:image/png;base64,{native_roi_img_31}" alt="Native ROI Plot Z=3.1">
+            <img src="data:image/png;base64,{native_roi_img_31}" alt="Native ROI Plot Z=3.1" class="report-element">
             <h2>GLM Test Z-map ROI Statistics Table (Z-map, Native Space, Z=3.1)</h2>
-            <img src="data:image/png;base64,{native_table_img_zstat_31}" alt="Native Z-Stat Table Plot Z=3.1">
+            <img src="data:image/png;base64,{native_table_img_zstat_31}" alt="Native Z-Stat Table Plot Z=3.1" class="report-element">
             <h2>Permutation Test T-map ROI Statistics Table (p-corrected t-map, Native Space, p<0.05)</h2>
-            <img src="data:image/png;base64,{native_table_img_tfce_31}" alt="Native TFCE Table Plot Z=3.1">
+            <img src="data:image/png;base64,{native_table_img_tfce_31}" alt="Native TFCE Table Plot Z=3.1" class="report-element">
             <h2>Interactive Brain Viewer (Native Space, Z=3.1)</h2>
             <h3>Motor 1</h3>
-            <iframe src="{native_viewer_31_motor1}" class="viewer"></iframe>
-            <p><a href="{native_viewer_31_motor1}" target="_blank">Open Motor 1 Z=3.1 Viewer in New Tab</a></p>
+            <iframe src="{native_viewer_unthresh_31_motor1}" class="viewer report-element"></iframe>
+            <p><a href="{native_viewer_unthresh_31_motor1}" target="_blank">Open Motor 1 Z=3.1 Viewer in New Tab</a></p>
             <h3>Motor 2</h3>
-            <iframe src="{native_viewer_31_motor2}" class="viewer"></iframe>
-            <p><a href="{native_viewer_31_motor2}" target="_blank">Open Motor 2 Z=3.1 Viewer in New Tab</a></p>
+            <iframe src="{native_viewer_unthresh_31_motor2}" class="viewer report-element"></iframe>
+            <p><a href="{native_viewer_unthresh_31_motor2}" target="_blank">Open Motor 2 Z=3.1 Viewer in New Tab</a></p>
             <h3>Language</h3>
-            <iframe src="{native_viewer_31_language}" class="viewer"></iframe>
-            <p><a href="{native_viewer_31_language}" target="_blank">Open Language Z=3.1 Viewer in New Tab</a></p>
+            <iframe src="{native_viewer_unthresh_31_language}" class="viewer report-element"></iframe>
+            <p><a href="{native_viewer_unthresh_31_language}" target="_blank">Open Language Z=3.1 Viewer in New Tab</a></p>
         </div>
         <div id="Native_235" class="thresh-tabcontent">
             <h2>Z-Maps with ROI Outlines (Native Space, Z=2.35)</h2>
-            <img src="data:image/png;base64,{native_roi_img_235}" alt="Native ROI Plot Z=2.35">
+            <img src="data:image/png;base64,{native_roi_img_235}" alt="Native ROI Plot Z=2.35" class="report-element">
             <h2>GLM Test Z-map ROI Statistics Table (Native Space, Z=2.35)</h2>
-            <img src="data:image/png;base64,{native_table_img_zstat_235}" alt="Native Z-Stat Table Plot Z=2.35">
+            <img src="data:image/png;base64,{native_table_img_zstat_235}" alt="Native Z-Stat Table Plot Z=2.35" class="report-element">
             <h2>Permutation Test T-map ROI Statistics Table (Native Space, p<0.05)</h2>
-            <img src="data:image/png;base64,{native_table_img_tfce_235}" alt="Native TFCE Table Plot Z=2.35">
-            <h2>Interactive Brain Viewer (Native Space, Z=2.35)</h2>
-            <h3>Motor 1</h3>
-            <iframe src="{native_viewer_235_motor1}" class="viewer"></iframe>
-            <p><a href="{native_viewer_235_motor1}" target="_blank">Open Motor 1 Z=2.35 Viewer in New Tab</a></p>
-            <h3>Motor 2</h3>
-            <iframe src="{native_viewer_235_motor2}" class="viewer"></iframe>
-            <p><a href="{native_viewer_235_motor2}" target="_blank">Open Motor 2 Z=2.35 Viewer in New Tab</a></p>
-            <h3>Language</h3>
-            <iframe src="{native_viewer_235_language}" class="viewer"></iframe>
-            <p><a href="{native_viewer_235_language}" target="_blank">Open Language Z=2.35 Viewer in New Tab</a></p>
+            <img src="data:image/png;base64,{native_table_img_tfce_235}" alt="Native TFCE Table Plot Z=2.35" class="report-element">
         </div>
-        <!-- Unthresholded Viewers at the End of Native Space -->
-        <h2>Unthresholded Interactive Brain Viewers (Native Space)</h2>
-        <h3>Unthresholded Z=3.1 Base</h3>
-        <iframe src="{native_viewer_unthresh_31_motor1}" class="viewer"></iframe>
-        <p><a href="{native_viewer_unthresh_31_motor1}" target="_blank">Open Motor 1 Unthresholded Viewer in New Tab</a></p>
-        <iframe src="{native_viewer_unthresh_31_motor2}" class="viewer"></iframe>
-        <p><a href="{native_viewer_unthresh_31_motor2}" target="_blank">Open Motor 2 Unthresholded Viewer in New Tab</a></p>
-        <iframe src="{native_viewer_unthresh_31_language}" class="viewer"></iframe>
-        <p><a href="{native_viewer_unthresh_31_language}" target="_blank">Open Language Unthresholded Viewer in New Tab</a></p>
-        <h3>Unthresholded Z=2.35 Base</h3>
-        <iframe src="{native_viewer_unthresh_235_motor1}" class="viewer"></iframe>
-        <p><a href="{native_viewer_unthresh_235_motor1}" target="_blank">Open Motor 1 Unthresholded Viewer in New Tab</a></p>
-        <iframe src="{native_viewer_unthresh_235_motor2}" class="viewer"></iframe>
-        <p><a href="{native_viewer_unthresh_235_motor2}" target="_blank">Open Motor 2 Unthresholded Viewer in New Tab</a></p>
-        <iframe src="{native_viewer_unthresh_235_language}" class="viewer"></iframe>
-        <p><a href="{native_viewer_unthresh_235_language}" target="_blank">Open Language Unthresholded Viewer in New Tab</a></p>
     </div>
 
     <!-- MNI Space Content -->
@@ -143,19 +125,19 @@ HTML_TEMPLATE = """
         </div>
         <div id="MNI_31" class="thresh-tabcontent">
             <h2>Z-Maps with ROI Outlines (MNI Space, Z=3.1)</h2>
-            <img src="data:image/png;base64,{mni_roi_img_31}" alt="MNI ROI Plot Z=3.1">
+            <img src="data:image/png;base64,{mni_roi_img_31}" alt="MNI ROI Plot Z=3.1" class="report-element">
             <h2>Z-Stat ROI Statistics Table (MNI Space, Z=3.1)</h2>
-            <img src="data:image/png;base64,{mni_table_img_zstat_31}" alt="MNI Z-Stat Table Plot Z=3.1">
+            <img src="data:image/png;base64,{mni_table_img_zstat_31}" alt="MNI Z-Stat Table Plot Z=3.1" class="report-element">
             <h2>Permutation Test T-map ROI Statistics Table (MNI Space, p<0.05)</h2>
-            <img src="data:image/png;base64,{mni_table_img_tfce_31}" alt="MNI TFCE Table Plot Z=3.1">
+            <img src="data:image/png;base64,{mni_table_img_tfce_31}" alt="MNI TFCE Table Plot Z=3.1" class="report-element">
         </div>
         <div id="MNI_235" class="thresh-tabcontent">
             <h2>Z-Maps with ROI Outlines (MNI Space, Z=2.35)</h2>
-            <img src="data:image/png;base64,{mni_roi_img_235}" alt="MNI ROI Plot Z=2.35">
+            <img src="data:image/png;base64,{mni_roi_img_235}" alt="MNI ROI Plot Z=2.35" class="report-element">
             <h2>GLM Test Z-map ROI Statistics Table (MNI Space, Z=2.35)</h2>
-            <img src="data:image/png;base64,{mni_table_img_zstat_235}" alt="MNI Z-Stat Table Plot Z=2.35">
+            <img src="data:image/png;base64,{mni_table_img_zstat_235}" alt="MNI Z-Stat Table Plot Z=2.35" class="report-element">
             <h2>Permutation Test T-map ROI Statistics Table (MNI Space, p<0.05)</h2>
-            <img src="data:image/png;base64,{mni_table_img_tfce_235}" alt="MNI TFCE Table Plot Z=2.35">
+            <img src="data:image/png;base64,{mni_table_img_tfce_235}" alt="MNI TFCE Table Plot Z=2.35" class="report-element">
         </div>
     </div>
 
