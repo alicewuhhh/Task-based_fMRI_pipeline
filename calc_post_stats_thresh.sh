@@ -6,8 +6,6 @@
 # Updated to separate STG and Heschl ROIs for language task, Mar 2025
 # Updated to include Dice and Coverage Percentage for TFCE vs. Z-stat comparison without re-thresholding TFCE, Mar 2025
 # Updated to compute two coverage percentages (t-map and z-map denominators) for TFCE and Z-stat, Apr 2025
-# Updated to parallelize process_post_stats within subjects and across subjects, Apr 2025
-# Updated to include ROI-specific coverage percentages for Z-stat and TFCE, Apr 2025
 
 # Exit on any error
 set -e
@@ -15,6 +13,12 @@ set -e
 # Check if at least one subject ID was provided
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <subject_id1> <subject_id2> ... <subject_idN>"
+    exit 1
+fi
+
+# Check if TASKS is set
+if [ -z "$TASKS" ]; then
+    echo "Error: TASKS environment variable is not set."
     exit 1
 fi
 
@@ -29,6 +33,11 @@ DATADIR=${ARCHIVEDIR}/derivatives
 calculate_percentage() {
     local numerator=$1
     local denominator=$2
+    if [ -z "$denominator" ] || ! [[ "$denominator" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: Denominator is empty or not an integer: $denominator" >&2
+        echo "0.0"
+        return 1
+    fi
     if [ "$denominator" -gt 0 ]; then
         local result=$(echo "scale=3; ($numerator / $denominator) * 100" | bc)
         printf "%.3f" "$result"
@@ -39,7 +48,7 @@ calculate_percentage() {
 
 # Function to calculate Dice coefficient
 calculate_dice() {
-    local t_map=$1    # Thresholded TFCE map (already thresholded)
+    local t_map=$1    # TFCE map (thresholded or unthresholded) or other map
     local z_map=$2    # Thresholded Z-map
     local overlap=$(fslstats "$t_map" -k "$z_map" -l 0 -V | awk '{print $1}')
     local total_t=$(fslstats "$t_map" -V | awk '{print $1}')
@@ -54,7 +63,7 @@ calculate_dice() {
 
 # Function to calculate coverage percentages (t-map and z-map denominators)
 calculate_coverage() {
-    local t_map=$1    # Thresholded TFCE map (already thresholded) or Z-map
+    local t_map=$1    # TFCE map (thresholded or unthresholded) or other map
     local z_map=$2    # Thresholded Z-map
     local overlap=$(fslstats "$t_map" -k "$z_map" -l 0 -V | awk '{print $1}')
     local total_t=$(fslstats "$t_map" -V | awk '{print $1}')
@@ -186,21 +195,29 @@ process_post_stats() {
     TRANSFORM=${SUBDIR}/anat/sub-${subject}_ses-01_run-01_from-MNI152NLin6Asym_to-T1w_mode-image_xfm.h5
     T1W_SKULL_STRIPPED=${SUBDIR}/anat/sub-${subject}_ses-01_run-01_desc-brain_T1w.nii.gz
     TFCE_CORRP=${OUTPUT_DIR}/randomise_time_series_tfce_corrp_tstat1.nii.gz
+    THRESH_TFCE_CORRP=${OUTPUT_DIR}/stats/thresh_tfce_corrp_tstat1.nii.gz
     TFCE_CORRP_NATIVE=${OUTPUT_DIR}/stats/randomise_time_series_tfce_corrp_tstat1_native.nii.gz
+    THRESH_TFCE_CORRP_NATIVE=${OUTPUT_DIR}/stats/thresh_tfce_corrp_tstat1_native.nii.gz
     TFCE_CORRP_LEFT=${OUTPUT_DIR}/stats/randomise_time_series_tfce_corrp_tstat1_left.nii.gz
     TFCE_CORRP_RIGHT=${OUTPUT_DIR}/stats/randomise_time_series_tfce_corrp_tstat1_right.nii.gz
+    THRESH_TFCE_CORRP_LEFT=${OUTPUT_DIR}/stats/thresh_tfce_corrp_tstat1_left.nii.gz
+    THRESH_TFCE_CORRP_RIGHT=${OUTPUT_DIR}/stats/thresh_tfce_corrp_tstat1_right.nii.gz
     TFCE_CORRP_LEFT_NATIVE=${OUTPUT_DIR}/stats/randomise_time_series_tfce_corrp_tstat1_left_native.nii.gz
     TFCE_CORRP_RIGHT_NATIVE=${OUTPUT_DIR}/stats/randomise_time_series_tfce_corrp_tstat1_right_native.nii.gz
+    THRESH_TFCE_CORRP_LEFT_NATIVE=${OUTPUT_DIR}/stats/thresh_tfce_corrp_tstat1_left_native.nii.gz
+    THRESH_TFCE_CORRP_RIGHT_NATIVE=${OUTPUT_DIR}/stats/thresh_tfce_corrp_tstat1_right_native.nii.gz
 
     # Cluster threshold at Z=2.35 for z-stats
     echo "Generating thresholded z-map at Z=2.35 for sub-${subject} task-${task}..."
     fslmaths "$ZSTAT" -thr 2.35 "$THRESH_ZSTAT_235"
     cluster -i "$THRESH_ZSTAT_235" -t 2.35 --mm --no_table
 
-    # No thresholding for TFCE_CORRP since it's already thresholded at p<0.05 by randomise
+    # Threshold TFCE map at 1-p ≥ 0.95 (p ≤ 0.05)
+    echo "Generating thresholded TFCE map at 1-p ≥ 0.95 for sub-${subject} task-${task}..."
+    fslmaths "$TFCE_CORRP" -thr 0.95 "$THRESH_TFCE_CORRP"
 
-    # Split z-maps and TFCE corrp into left and right hemispheres in MNI space
-    echo "Splitting z-maps and TFCE maps for sub-${subject} task-${task} in MNI space..."
+    # Split z-maps, TFCE corrp, and thresholded TFCE corrp into left and right hemispheres in MNI space
+    echo "Splitting z-maps, TFCE maps, and thresholded TFCE maps for sub-${subject} task-${task} in MNI space..."
     fslmaths "$ZSTAT" -roi 1 45 -1 -1 -1 -1 0 1 "$ZSTAT_LEFT"
     fslmaths "$ZSTAT" -roi 45 90 -1 -1 -1 -1 0 1 "$ZSTAT_RIGHT"
     fslmaths "$THRESH_ZSTAT" -roi 1 45 -1 -1 -1 -1 0 1 "$THRESH_ZSTAT_LEFT"
@@ -209,9 +226,11 @@ process_post_stats() {
     fslmaths "$THRESH_ZSTAT_235" -roi 45 90 -1 -1 -1 -1 0 1 "$THRESH_ZSTAT_RIGHT_235"
     fslmaths "$TFCE_CORRP" -roi 1 45 -1 -1 -1 -1 0 1 "$TFCE_CORRP_LEFT"
     fslmaths "$TFCE_CORRP" -roi 45 90 -1 -1 -1 -1 0 1 "$TFCE_CORRP_RIGHT"
+    fslmaths "$THRESH_TFCE_CORRP" -roi 1 45 -1 -1 -1 -1 0 1 "$THRESH_TFCE_CORRP_LEFT"
+    fslmaths "$THRESH_TFCE_CORRP" -roi 45 90 -1 -1 -1 -1 0 1 "$THRESH_TFCE_CORRP_RIGHT"
 
-    # Inverse transform z-maps and TFCE corrp to native T1w space
-    echo "Inverse transforming z-maps and TFCE maps for sub-${subject} task-${task}..."
+    # Inverse transform z-maps, TFCE corrp, and thresholded TFCE corrp to native T1w space
+    echo "Inverse transforming z-maps, TFCE maps, and thresholded TFCE maps for sub-${subject} task-${task}..."
     antsApplyTransforms -d 3 -i "$ZSTAT" -r "$T1W_SKULL_STRIPPED" -o "$ZSTAT_NATIVE" \
         -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
     antsApplyTransforms -d 3 -i "$THRESH_ZSTAT" -r "$T1W_SKULL_STRIPPED" -o "$THRESH_ZSTAT_NATIVE" \
@@ -232,11 +251,17 @@ process_post_stats() {
         -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
     antsApplyTransforms -d 3 -i "$TFCE_CORRP" -r "$T1W_SKULL_STRIPPED" -o "$TFCE_CORRP_NATIVE" \
         -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
+    antsApplyTransforms -d 3 -i "$THRESH_TFCE_CORRP" -r "$T1W_SKULL_STRIPPED" -o "$THRESH_TFCE_CORRP_NATIVE" \
+        -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
     antsApplyTransforms -d 3 -i "$TFCE_CORRP_LEFT" -r "$T1W_SKULL_STRIPPED" -o "$TFCE_CORRP_LEFT_NATIVE" \
         -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
     antsApplyTransforms -d 3 -i "$TFCE_CORRP_RIGHT" -r "$T1W_SKULL_STRIPPED" -o "$TFCE_CORRP_RIGHT_NATIVE" \
         -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
-    echo "Inverse transform completed: z-maps and TFCE maps in native space"
+    antsApplyTransforms -d 3 -i "$THRESH_TFCE_CORRP_LEFT" -r "$T1W_SKULL_STRIPPED" -o "$THRESH_TFCE_CORRP_LEFT_NATIVE" \
+        -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
+    antsApplyTransforms -d 3 -i "$THRESH_TFCE_CORRP_RIGHT" -r "$T1W_SKULL_STRIPPED" -o "$THRESH_TFCE_CORRP_RIGHT_NATIVE" \
+        -t "$TRANSFORM" -n Linear --float --default-value 0 -e 0
+    echo "Inverse transform completed: z-maps, TFCE maps, and thresholded TFCE maps in native space: $ZSTAT_NATIVE, $THRESH_ZSTAT_NATIVE, $THRESH_ZSTAT_235_NATIVE, $ZSTAT_LEFT_NATIVE, $ZSTAT_RIGHT_NATIVE, $THRESH_ZSTAT_LEFT_235_NATIVE, $THRESH_ZSTAT_RIGHT_235_NATIVE, $TFCE_CORRP_NATIVE, $THRESH_TFCE_CORRP_NATIVE, $TFCE_CORRP_LEFT_NATIVE, $TFCE_CORRP_RIGHT_NATIVE, $THRESH_TFCE_CORRP_LEFT_NATIVE, $THRESH_TFCE_CORRP_RIGHT_NATIVE"
 
     # Task-specific ROI mappings for both spaces
     if [[ "$task" == "motor_run-01" || "$task" == "motor_run-02" ]]; then
@@ -283,8 +308,11 @@ process_post_stats() {
             THRESH_ZSTAT_LEFT_235_USE="$THRESH_ZSTAT_LEFT_NATIVE_235"
             THRESH_ZSTAT_RIGHT_235_USE="$THRESH_ZSTAT_RIGHT_NATIVE_235"
             TFCE_CORRP_USE="$TFCE_CORRP_NATIVE"
+            THRESH_TFCE_CORRP_USE="$THRESH_TFCE_CORRP_NATIVE"
             TFCE_CORRP_LEFT_USE="$TFCE_CORRP_LEFT_NATIVE"
             TFCE_CORRP_RIGHT_USE="$TFCE_CORRP_RIGHT_NATIVE"
+            THRESH_TFCE_CORRP_LEFT_USE="$THRESH_TFCE_CORRP_LEFT_NATIVE"
+            THRESH_TFCE_CORRP_RIGHT_USE="$THRESH_TFCE_CORRP_RIGHT_NATIVE"
             if [[ "$task" == "motor_run-01" || "$task" == "motor_run-02" ]]; then
                 ROI_WB="$ROI_WB_NATIVE"
                 ROI_LEFT="$ROI_LEFT_NATIVE"
@@ -308,8 +336,11 @@ process_post_stats() {
             THRESH_ZSTAT_LEFT_235_USE="$THRESH_ZSTAT_LEFT_235"
             THRESH_ZSTAT_RIGHT_235_USE="$THRESH_ZSTAT_RIGHT_235"
             TFCE_CORRP_USE="$TFCE_CORRP"
+            THRESH_TFCE_CORRP_USE="$THRESH_TFCE_CORRP"
             TFCE_CORRP_LEFT_USE="$TFCE_CORRP_LEFT"
             TFCE_CORRP_RIGHT_USE="$TFCE_CORRP_RIGHT"
+            THRESH_TFCE_CORRP_LEFT_USE="$THRESH_TFCE_CORRP_LEFT"
+            THRESH_TFCE_CORRP_RIGHT_USE="$THRESH_TFCE_CORRP_RIGHT"
             if [[ "$task" == "motor_run-01" || "$task" == "motor_run-02" ]]; then
                 ROI_WB="$ROI_WB_MNI"
                 ROI_LEFT="$ROI_LEFT_MNI"
@@ -373,30 +404,26 @@ process_post_stats() {
                 # Calculate percentages
                 percentage_wb=$(calculate_percentage "$activated_voxels_wb" "$total_voxels")
                 percentage_roi=$(calculate_percentage "$activated_voxels_roi" "$roi_voxels")
-                ratio_actv_roi_in_wb=$(printf "%.1f" $(bc -l <<< "scale=2; $percentage_roi / $percentage_wb"))
                 percentage_roi_in_wb=$(calculate_percentage "$activated_voxels_roi" "$total_voxels")
-
-                # Calculate ROI-specific coverage percentages
-                tfce_map="$TFCE_CORRP_USE"  # Use whole-brain TFCE for consistency
-                if [ "$roi_label" == "Left" ] || [ "$roi_label" == "Left STG" ] || [ "$roi_label" == "Left Heschl" ]; then
-                    tfce_map="$TFCE_CORRP_LEFT_USE"
-                elif [ "$roi_label" == "Right" ] || [ "$roi_label" == "Right STG" ] || [ "$roi_label" == "Right Heschl" ]; then
-                    tfce_map="$TFCE_CORRP_RIGHT_USE"
+                if [ "$(echo "$percentage_wb > 0" | bc)" -eq 1 ]; then
+                    ratio_actv_roi_in_wb=$(printf "%.3f" $(bc -l <<< "scale=2; $percentage_roi / $percentage_wb"))
+                else
+                    ratio_actv_roi_in_wb="N/A"
                 fi
-                
-                # Dice is N/A for Z-stat, coverage uses z-map denominator
+
+                # Dice and coverage are N/A for Z-stat
                 dice="N/A"
-                coverage_z="N/A"
                 coverage_t="N/A"
-                coverage_z_roi="N/A"
+                coverage_z="N/A"
                 coverage_t_roi="N/A"
+                coverage_z_roi="N/A"
 
                 # Append to CSV with "Z-stat" type
                 echo "$subject,$task,$space,$roi_label,$thresh_label,Z-stat,$activated_voxels_wb,$activated_voxels_roi,$percentage_wb,$percentage_roi,$percentage_roi_in_wb,$ratio_actv_roi_in_wb,$roi_voxels,$total_voxels,$dice,$coverage_t,$coverage_z,$coverage_t_roi,$coverage_z_roi" >> "$CSV_FILE"
             done
         done
 
-        # Process TFCE (already thresholded at p<0.05) and compare with Z=3.1
+        # Process thresholded TFCE (1-p ≥ 0.95) and compare with Z=3.1
         thresh_label="p<0.05"
         if [[ "$task" == "motor_run-01" || "$task" == "motor_run-02" ]]; then
             roi_labels=("Whole-brain" "Left" "Right")
@@ -410,13 +437,16 @@ process_post_stats() {
             roi_label="${roi_labels[$i]}"
             roi_path="${roi_paths[$i]}"
             if [ "$roi_label" == "Whole-brain" ] || [ "$roi_label" == "Whole-brain STG" ] || [ "$roi_label" == "Whole-brain Heschl" ]; then
-                tfce_map="$TFCE_CORRP_USE"  # Already thresholded
+                thresh_tfce_map="$THRESH_TFCE_CORRP_USE"  # Thresholded TFCE
+                tfce_map="$TFCE_CORRP_USE"  # Unthresholded TFCE for total voxels
                 thresh_z_map="$THRESH_ZSTAT_USE"  # Compare with Z=3.1
             elif [ "$roi_label" == "Left" ] || [ "$roi_label" == "Left STG" ] || [ "$roi_label" == "Left Heschl" ]; then
-                tfce_map="$TFCE_CORRP_LEFT_USE"  # Already thresholded
+                thresh_tfce_map="$THRESH_TFCE_CORRP_LEFT_USE"  # Thresholded TFCE
+                tfce_map="$TFCE_CORRP_LEFT_USE"  # Unthresholded TFCE for total voxels
                 thresh_z_map="$THRESH_ZSTAT_LEFT_USE"  # Compare with Z=3.1
             elif [ "$roi_label" == "Right" ] || [ "$roi_label" == "Right STG" ] || [ "$roi_label" == "Right Heschl" ]; then
-                tfce_map="$TFCE_CORRP_RIGHT_USE"  # Already thresholded
+                thresh_tfce_map="$THRESH_TFCE_CORRP_RIGHT_USE"  # Thresholded TFCE
+                tfce_map="$TFCE_CORRP_RIGHT_USE"  # Unthresholded TFCE for total voxels
                 thresh_z_map="$THRESH_ZSTAT_RIGHT_USE"  # Compare with Z=3.1
             fi
 
@@ -425,26 +455,30 @@ process_post_stats() {
             # Total voxels in the ROI mask
             roi_voxels=$(fslstats "$roi_path" -V | awk '{print $1}')
 
-            # Activated voxels in tfce_map (whole brain or hemisphere)
-            activated_voxels_wb=$(fslstats "$tfce_map" -k "$tfce_map" -l 0 -V | awk '{print $1}')
-            # Activated voxels in tfce_map within ROI
-            activated_voxels_roi=$(fslstats "$tfce_map" -k "$roi_path" -l 0 -V | awk '{print $1}')
-        
+            # Activated voxels in thresh_tfce_map (whole brain or hemisphere)
+            activated_voxels_wb=$(fslstats "$thresh_tfce_map" -k "$tfce_map" -l 0 -V | awk '{print $1}')
+            # Activated voxels in thresh_tfce_map within ROI
+            activated_voxels_roi=$(fslstats "$thresh_tfce_map" -k "$roi_path" -l 0 -V | awk '{print $1}')
+
             # Calculate percentages
             percentage_wb=$(calculate_percentage "$activated_voxels_wb" "$total_voxels")
             percentage_roi=$(calculate_percentage "$activated_voxels_roi" "$roi_voxels")
-            ratio_actv_roi_in_wb=$(printf "%.1f" $(bc -l <<< "scale=2; $percentage_roi / $percentage_wb"))
             percentage_roi_in_wb=$(calculate_percentage "$activated_voxels_roi" "$total_voxels")
+            if [ "$(echo "$percentage_wb > 0" | bc)" -eq 1 ]; then
+                ratio_actv_roi_in_wb=$(printf "%.3f" $(bc -l <<< "scale=2; $percentage_roi / $percentage_wb"))
+            else
+                ratio_actv_roi_in_wb="N/A"
+            fi
 
-            # Calculate Dice and Coverage for TFCE vs. Z=3.1 within ROI
-            dice=$(calculate_dice "$tfce_map" "$thresh_z_map")
-            coverage_values=$(calculate_coverage "$tfce_map" "$thresh_z_map")
+            # Calculate Dice and Coverage for thresholded TFCE vs. Z=3.1
+            dice=$(calculate_dice "$thresh_tfce_map" "$thresh_z_map")
+            coverage_values=$(calculate_coverage "$thresh_tfce_map" "$thresh_z_map")
             coverage_t=$(echo "$coverage_values" | cut -d',' -f1)
             coverage_z=$(echo "$coverage_values" | cut -d',' -f2)
 
             # Calculate ROI-specific coverage percentages
             activated_voxels_roi_z=$(fslstats "$thresh_z_map" -k "$roi_path" -l 0 -V | awk '{print $1}')
-            overlap_roi=$(fslstats "$tfce_map" -k "$thresh_z_map" -k "$roi_path" -l 0 -V | awk '{print $1}')
+            overlap_roi=$(fslstats "$thresh_tfce_map" -k "$thresh_z_map" -k "$roi_path" -l 0 -V | awk '{print $1}')
             coverage_t_roi="0.0"
             coverage_z_roi="0.0"
             if [ "$activated_voxels_roi" -gt 0 ]; then
@@ -469,37 +503,17 @@ export -f calculate_percentage
 export -f calculate_dice
 export -f calculate_coverage
 
-# Define tasks
-TASKS="motor_run-01 motor_run-02 lang"
-
-# Maximum number of concurrent subjects and tasks
-MAX_SUBJECTS=100
-MAX_TASKS=3
-SUBJECT_COUNT=0
-TASK_COUNT=0
-
 # Main processing loop using command-line arguments
 for subject in "$@"; do
-    (
-        echo "Preprocessing sub-${subject} (skull-stripping and ROI transformation)"
-        preprocess_subject "$subject"
-        for task in $TASKS; do
-            echo "Processing post-stats for sub-${subject} task-${task}"
-            mkdir -p "${DATADIR}/sub-${subject}/ses-01/post_stats"
-            process_post_stats "$subject" "$task" > "${DATADIR}/sub-${subject}/ses-01/post_stats/log_${subject}_${task}.txt" 2>&1 &
-            ((TASK_COUNT++))
-            if [ $TASK_COUNT -ge $MAX_TASKS ]; then
-                wait
-                TASK_COUNT=0
-            fi
-        done
-        wait 
-    ) &
-    ((SUBJECT_COUNT++))
-    if [ $SUBJECT_COUNT -ge $MAX_SUBJECTS ]; then
-        wait
-        SUBJECT_COUNT=0
-    fi
+    echo "Preprocessing sub-${subject} (skull-stripping and ROI transformation)"
+    preprocess_subject "$subject"
+    for task in $TASKS; do
+        echo "Processing post-stats for sub-${subject} task-${task}"
+        mkdir -p "${DATADIR}/sub-${subject}/ses-01/post_stats"
+        process_post_stats "$subject" "$task" > "${DATADIR}/sub-${subject}/ses-01/post_stats/log_${subject}_${task}.txt" 2>&1 &
+    done
+    wait
 done
+
 wait
 echo "All processing completed for subjects: $@"

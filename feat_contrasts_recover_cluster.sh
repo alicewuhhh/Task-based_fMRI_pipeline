@@ -14,10 +14,6 @@ if [ -z "$TASKS" ]; then
     exit 1
 fi
 
-ARCHIVEDIR=/project/fischer/PREDICT/alicewu/fsl_pipeline
-DATADIR=${ARCHIVEDIR}/derivatives
-TEMPLATE=${ARCHIVEDIR}/code/templates/design_test_script.fsf #events file, change, make a note. 
-
 # Set the number of parallel jobs to run. change based on available cores in the cluster
 export OMP_NUM_THREADS=4
 

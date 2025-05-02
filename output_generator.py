@@ -67,7 +67,7 @@ class OutputGenerator:
         if 'roi_zmap_plot' in filename:
             figsize = (10, 18)  # Size for ROI plots from plot_roi
         elif 'roi_stats_table' in filename:
-            figsize = (10, 6)   # Size for tables from plot_table
+            figsize = (16, 6)   # Size for tables from plot_table
         else:
             figsize = (10, 10)  # Default fallback size
         
@@ -246,15 +246,6 @@ class OutputGenerator:
             if task in native_viewers_31:
                 native_viewers_31[task].save_as_html(os.path.join(viewer_dir, viewer_file))
 
-        # Save viewers for Z=2.35
-        native_viewers_235 = data.get('native_viewers_235', {})
-        for task in tasks:
-            viewer_key = f"native_viewer_235_{task.lower().replace(' ', '_')}"
-            viewer_file = f"native_{task.lower().replace(' ', '_')}_z235_viewer.html"
-            viewer_paths[viewer_key] = os.path.join("viewers", viewer_file)
-            if task in native_viewers_235:
-                native_viewers_235[task].save_as_html(os.path.join(viewer_dir, viewer_file))
-
         # Save unthresholded viewers for Z=3.1 base
         native_viewers_unthresh_31 = data.get('native_viewers_unthresh_31', {})
         for task in tasks:
@@ -264,31 +255,16 @@ class OutputGenerator:
             if task in native_viewers_unthresh_31:
                 native_viewers_unthresh_31[task].save_as_html(os.path.join(viewer_dir, viewer_file))
 
-        # Save unthresholded viewers for Z=2.35 base
-        native_viewers_unthresh_235 = data.get('native_viewers_unthresh_235', {})
-        for task in tasks:
-            viewer_key = f"native_viewer_unthresh_235_{task.lower().replace(' ', '_')}"
-            viewer_file = f"native_{task.lower().replace(' ', '_')}_unthresh_z235_viewer.html"
-            viewer_paths[viewer_key] = os.path.join("viewers", viewer_file)
-            if task in native_viewers_unthresh_235:
-                native_viewers_unthresh_235[task].save_as_html(os.path.join(viewer_dir, viewer_file))
-
         # Generate HTML content
         html_content = HTML_TEMPLATE.format(
             subject=self.subject,
             **img_data,
-            native_viewer_31_motor1=viewer_paths.get('native_viewer_31_motor_1', ''),
-            native_viewer_31_motor2=viewer_paths.get('native_viewer_31_motor_2', ''),
-            native_viewer_31_language=viewer_paths.get('native_viewer_31_language', ''),
-            native_viewer_235_motor1=viewer_paths.get('native_viewer_235_motor_1', ''),
-            native_viewer_235_motor2=viewer_paths.get('native_viewer_235_motor_2', ''),
-            native_viewer_235_language=viewer_paths.get('native_viewer_235_language', ''),
+            # native_viewer_31_motor1=viewer_paths.get('native_viewer_31_motor_1', ''),
+            # native_viewer_31_motor2=viewer_paths.get('native_viewer_31_motor_2', ''),
+            # native_viewer_31_language=viewer_paths.get('native_viewer_31_language', ''),
             native_viewer_unthresh_31_motor1=viewer_paths.get('native_viewer_unthresh_31_motor_1', ''),
             native_viewer_unthresh_31_motor2=viewer_paths.get('native_viewer_unthresh_31_motor_2', ''),
             native_viewer_unthresh_31_language=viewer_paths.get('native_viewer_unthresh_31_language', ''),
-            native_viewer_unthresh_235_motor1=viewer_paths.get('native_viewer_unthresh_235_motor_1', ''),
-            native_viewer_unthresh_235_motor2=viewer_paths.get('native_viewer_unthresh_235_motor_2', ''),
-            native_viewer_unthresh_235_language=viewer_paths.get('native_viewer_unthresh_235_language', ''),
         )
 
         with open(html_path, 'w') as f:

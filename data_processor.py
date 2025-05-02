@@ -7,7 +7,7 @@
 import os
 from nilearn import plotting
 import logging
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt                 
 import pandas as pd
 import numpy as np
 
@@ -126,7 +126,7 @@ class DataProcessor:
     def plot_roi(self, space, threshold=None):
         logging.info(f"Plotting ROI for {space} space with threshold {threshold}")
         png_path = os.path.join(self.subject_path, f"post_stats/sub-{self.subject}_roi_zmap_plot_{space}_{threshold}.png")
-        bg_img = self.t1_native if space == 'Native' else self.t1_mni 
+        bg_img = self.t1_native if space == 'Native' else self.t1_mni
         task_roi_mapping = self.task_roi_mapping
 
         fig, axes = plt.subplots(6, 1, figsize=(10, 18))  # Increased height slightly for clarity
@@ -135,7 +135,7 @@ class DataProcessor:
             thresh_31_path = task_info[space]['thresh_z_map_31']
             roi_paths = task_info[space]['roi_paths']  # All ROIs for the task
             cut_coords = task_info[space]['cut_coords']
-            z_map_path = task_info[space]['z_map'] 
+            z_map_path = task_info[space]['z_map']
             if threshold == 3.1:
                 img_path = thresh_31_path
                 thresh_value = 3.1
@@ -223,26 +223,26 @@ class DataProcessor:
                 return [['N/A' for _ in range(6)] for _ in range(12)], 0, [0] * 12
             
             table_data = []
-            wb_voxel_counts = df['Voxels in Whole Brain (counts)'].iloc[0]  # Assuming consistent across ROIs
             roi_voxel_counts = df['Voxels in ROI (counts)'].tolist()
-
+            wb_voxel_counts = []
             for i in range(len(df)):
+                wb_voxel_count = df['Voxels in Whole Brain (counts)'].iloc[i]
                 act_wb = df['Activated Voxels across Whole Brain (counts)'].iloc[i]
                 act_roi = df['Activated Voxels within ROI (counts)'].iloc[i]
                 perc_wb = df['Activated Voxels across Whole Brain (%)'].iloc[i]
                 perc_roi = df['Activated Voxels within ROI (%)'].iloc[i]
                 perc_roi_wb = df['Activated ROI/WB (%)'].iloc[i]
                 ratio_roi_act_wb = df['%Activated ROI/%Activated WB (ratio)'].iloc[i]
-                roi_voxel_percentage = (roi_voxel_counts[i] / wb_voxel_counts) * 100 if wb_voxel_counts > 0 else 0
-                
+
                 table_data.append([
                     tasks[i],
                     rois[i],
                     f"{act_wb} ({perc_wb:.1f}%)",
                     f"{act_roi} ({perc_roi:.1f}%)",
                     f"{ratio_roi_act_wb:.1f}",
-                    f"{perc_roi_wb:.1f} ({roi_voxel_percentage:.1f}%)"
+                    f"{perc_roi_wb:.1f}"
                 ])
+                wb_voxel_counts.append(wb_voxel_count)
             return table_data, wb_voxel_counts, roi_voxel_counts
 
         # Z-stat table
@@ -264,7 +264,7 @@ class DataProcessor:
                     cell.set_height(0.1)
                 elif row % 3 == 1:
                     cell.set_facecolor('#f2f2f2')
-                cell.set_height(0.07)  # Adjusted height for more rows
+                cell.set_height(0.07)
         else:
             ax_zstat.text(0.5, 0.5, f"No Z-stat data available for {space} space (Z={threshold})", 
                           ha='center', va='center', fontsize=10, color='red')
@@ -272,10 +272,10 @@ class DataProcessor:
         ax_zstat.axis('off')
         plt.suptitle(f"Supra-thresholded Voxels in {space} Space (Z={threshold})", fontweight='bold', fontsize=12)
         annotation_text = (
-            f"Whole-brain voxel counts: {zstat_wb_voxels}\n"
+            f"Whole-brain voxel counts: {', '.join(map(str, zstat_wb_voxels))}\n"
             f"ROI voxel counts (order follows table): {', '.join(map(str, zstat_roi_voxels))}\n"
-            "*%Activated ROI/%Activated WB (ratio): Percentage of activated voxels in ROI (Column 4) divided by Percentage of activated voxels across Whole Brain (Column 3)\n"
-            "*Activated Voxels in ROI across WB (%): Activated voxels in ROI (Column 4) divided by Whole-brain voxel counts; (percentage in parentheses is total ROI voxels / whole brain voxels)"
+            "*%Activated ROI/%Activated WB (ratio): Percent act. voxels in ROI (Column 4) divided by Percent act. voxels in Whole Brain (Column 3)\n"
+            "*Activated Voxels in ROI across WB (%): Activated voxels in ROI (Column 4) divided by Whole-brain voxel counts"
         )
         plt.annotate(annotation_text, xy=(0, 0), xytext=(0, -50), xycoords='axes fraction', textcoords='offset points', fontsize=8)
         png_path_zstat = os.path.join(self.subject_path, f"post_stats/sub-{self.subject}_roi_stats_table_{space}_zstat_{threshold}.png")
@@ -306,10 +306,10 @@ class DataProcessor:
         ax_tfce.axis('off')
         plt.suptitle(f"Supra-thresholded Voxels in {space} Space (p-corrected t-map, p<0.05)", fontweight='bold', fontsize=12)
         annotation_text = (
-            f"Whole-brain voxel counts: {tfce_wb_voxels}\n"
+            f"Whole-brain voxel counts: {', '.join(map(str, tfce_wb_voxels))}\n"
             f"ROI voxel counts (order follows table): {', '.join(map(str, tfce_roi_voxels))}\n"
-            "*%Activated ROI/%Activated WB (ratio): Percentage of activated voxels in ROI (Column 4) divided by Percentage of activated voxels across Whole Brain (Column 3)\n"
-            "*Activated Voxels in ROI across WB (%): Activated voxels in ROI (Column 4) divided by Whole-brain voxel counts; (percentage in parentheses is total ROI voxels / whole brain voxels)"
+           "*%Activated ROI/%Activated WB (ratio): Percent act. voxels in ROI (Column 4) divided by Percent act. voxels in Whole Brain (Column 3)\n"
+            "*Activated Voxels in ROI across WB (%): Activated voxels in ROI (Column 4) divided by Whole-brain voxel counts"
         )
         plt.annotate(annotation_text, xy=(0, 0), xytext=(0, -50), xycoords='axes fraction', textcoords='offset points', fontsize=8)
         png_path_tfce = os.path.join(self.subject_path, f"post_stats/sub-{self.subject}_roi_stats_table_{space}_tfce_p005.png")
@@ -355,7 +355,5 @@ class DataProcessor:
             'mni_table_fig_zstat_235': mni_table_fig_zstat_235,
             'mni_table_fig_tfce_235': mni_table_fig_tfce_235,
             'native_viewers_31': native_viewers_31,
-            'native_viewers_235': native_viewers_235,
             'native_viewers_unthresh_31': native_viewers_unthresh_31,
-            'native_viewers_unthresh_235': native_viewers_unthresh_235,
         }
