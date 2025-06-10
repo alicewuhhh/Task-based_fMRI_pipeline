@@ -53,14 +53,31 @@ This script orchestrates the RECOVER fMRI pipeline and accepts subject IDs as co
 
 2. **`run_permutation_test_cluster.sh`:**  
    - Runs randomize permutation testing with time series data.
-  
-3. **`cal_post_stats_thresh.sh`:**  
-   - Calculates quantitative measurements based on the output of the previous step.
-
-4. **`ica_corr.py`:**
+     
+3. **`ica_corr.py`:**
    - Runs ICA analysis on time-series data. Temporal correlation with task regressor and spatial orrelation with GLM zstat
+  
+4. **`cal_post_stats_thresh.sh`:**  
+   - Calculates quantitative post-statistics and thresholding based on the outputs from previous steps. Generates a summary CSV file with quantitative results for each subject, task, ROI, and threshold.
+  1) **Thresholding statistical maps:**  
+  - Applies cluster thresholding to Z-stat maps at Z=3.1 and Z=2.35.
+  - Thresholds TFCE (Threshold-Free Cluster Enhancement) corrected p-value maps at 1-p ≥ 0.95 (p ≤ 0.05).
+  2) **Splitting and transforming results:**  
+  - Splits statistical maps (Z-stats and TFCE) into left and right hemispheres in MNI space.
+  - Applies inverse transforms to bring thresholded and unthresholded maps from standard (MNI) space back into each subject’s native T1w space using ANTs.
+  3) **Quantitative calculations**  
+  - For each threshold and task seq, calculates:
+    - The total number of voxels in the ROI and whole-brain.
+    - The number and percentage of suprathreshold voxels in the ROI and whole-brain.
+      percentage = (number of suprathreshold voxels in region) / (total number of voxels in region) * 100
+      For example, to calculate the percentage of suprathreshold voxels in an ROI:
+     - First, count the total number of voxels in the ROI mask.
+     - Next, count the number of voxels in the thresholded map that also fall within the ROI.
+     - Divide the suprathreshold voxel count by the total ROI voxel count, then multiply by 100.
+    - Overlap between Z-stat and TFCE thresholded maps.
+    - Dice coefficients and coverage metrics to quantify spatial overlap.
 
-6. **`output_generator.py`:**  
+5. **`output_generator.py`:**  
    - Calls `data_processor.py` and uses `html_template.py`.
    - Processes and combines results and plots.  
    - Generates an HTML report with visualizations for easier diagnosis and reporting.
