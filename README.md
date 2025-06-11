@@ -77,7 +77,7 @@ This script orchestrates the RECOVER fMRI pipeline and accepts subject IDs as co
     - Overlap between Z-stat and TFCE thresholded maps.
     - Dice coefficients and coverage metrics to quantify spatial overlap.<br>
 
-5. **`output_generator.py`:**  
+### 5. **`output_generator.py`:**  
    - Calls `data_processor.py` and uses `html_template.py`.
    - Processes and combines results and plots.  
    - Generates an HTML report with visualizations for easier diagnosis and reporting.
