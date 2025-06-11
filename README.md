@@ -59,13 +59,13 @@ This script orchestrates the RECOVER fMRI pipeline and accepts subject IDs as co
   
 4. **`cal_post_stats_thresh.sh`:**  
    - Calculates quantitative post-statistics and thresholding based on the outputs from previous steps. Generates a summary CSV file with quantitative results for each subject, task, ROI, and threshold.
-  **1) **Thresholding statistical maps:**  
+  ### 1) **Thresholding statistical maps:**  
   - Applies cluster thresholding to Z-stat maps at Z=3.1 and Z=2.35.
   - Thresholds TFCE (Threshold-Free Cluster Enhancement) corrected p-value maps at 1-p ≥ 0.95 (p ≤ 0.05).
-  **2) **Splitting and transforming results:**  
+### 2) **Splitting and transforming results:**  
   - Splits statistical maps (Z-stats and TFCE) into left and right hemispheres in MNI space.
   - Applies inverse transforms to bring thresholded and unthresholded maps from standard (MNI) space back into each subject’s native T1w space using ANTs.
-  **3) **Quantitative calculations**  
+### 3) **Quantitative calculations**  
   - For each threshold and task seq, calculates:
     - The total number of voxels in the ROI and whole-brain.
     - The number and percentage of suprathreshold voxels in the ROI and whole-brain.
