@@ -7,6 +7,7 @@ This pipeline implements three testing methods:
 - **Permutation Testing:** Non-parametric method. Randomly shuffling or rearranging data to estimate the sampling distribution of a test statistic under the null hypothesis. Includes a threshold-free clustering enhancement (TFCE) method.
 - **ICA** ICA Temporal correlation with task regressor and spatial correlation with GLM output Z-stat map
 
+Example report: https://htmlpreview.github.io/?https://raw.githubusercontent.com/alicewuhhh/Task-based_fMRI_pipeline/main/Example_fmriprep_report.html
 ---
 
 ## Inputs
